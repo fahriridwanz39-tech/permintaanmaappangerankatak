@@ -42,19 +42,25 @@
         }
     </script>
     <style>
-        .floating-heart {
+        .floating-item {
             position: absolute;
-            animation: floatUp 4s linear infinite;
-            opacity: 0.8;
+            animation: floatComplex 8s ease-in-out infinite;
+            opacity: 0.85;
             pointer-events: none;
         }
-        @keyframes floatUp {
+        @keyframes floatComplex {
             0% {
-                transform: translateY(100vh) scale(0.5) rotate(0deg);
-                opacity: 1;
+                transform: translateY(110vh) translateX(0px) scale(0.6) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.9;
+            }
+            80% {
+                opacity: 0.9;
             }
             100% {
-                transform: translateY(-10vh) scale(1.2) rotate(360deg);
+                transform: translateY(-15vh) translateX(60px) scale(1.1) rotate(360deg);
                 opacity: 0;
             }
         }
@@ -72,8 +78,8 @@
 </head>
 <body class="bg-gradient-to-br from-sage-50 via-sage-100 to-sage-200 text-sage-900 font-sans min-h-screen flex flex-col justify-between overflow-x-hidden relative selection:bg-sage-300">
 
-    <!-- Floating Hearts Container -->
-    <div id="hearts-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+    <!-- Floating Background Container (6 Small Photos + Frogs/Hearts) -->
+    <div id="floating-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
 
     <!-- Header / Navbar -->
     <header class="w-full py-4 px-6 md:px-12 flex justify-between items-center z-10 backdrop-blur-md bg-white/40 border-b border-sage-200/50 sticky top-0">
@@ -152,31 +158,51 @@
 
     <!-- JavaScript Interactions -->
     <script>
-        // Generate Floating Hearts
-        function createHeart() {
-            const container = document.getElementById('hearts-container');
-            const heart = document.createElement('div');
-            heart.classList.add('floating-heart');
+        // Array of small floating photo URLs (6 distinct mini photos + emojis/frogs)
+        const floatingItemsData = [
+            { type: 'photo', url: 'https://placehold.co/100x100/87A96B/FFFFFF?text=B1' },
+            { type: 'photo', url: 'https://placehold.co/100x100/A3C1AD/FFFFFF?text=B2' },
+            { type: 'photo', url: 'https://placehold.co/100x100/528552/FFFFFF?text=B3' },
+            { type: 'photo', url: 'https://placehold.co/100x100/3F683F/FFFFFF?text=B4' },
+            { type: 'photo', url: 'https://placehold.co/100x100/9EC29E/FFFFFF?text=B5' },
+            { type: 'photo', url: 'https://placehold.co/100x100/2C5E3B/FFFFFF?text=B6' },
+            { type: 'emoji', content: '🐸' },
+            { type: 'emoji', content: '💚' },
+            { type: 'emoji', content: '🌿' },
+            { type: 'emoji', content: '✨' }
+        ];
+
+        function createFloatingElement() {
+            const container = document.getElementById('floating-container');
+            const itemConfig = floatingItemsData[Math.floor(Math.random() * floatingItemsData.length)];
             
-            // Random symbols (hearts & frogs)
-            const icons = ['💚', '💖', '🐸', '🌿', '✨', '🤍'];
-            heart.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+            const el = document.createElement('div');
+            el.classList.add('floating-item');
+
+            if (itemConfig.type === 'photo') {
+                el.innerHTML = `<img src="${itemConfig.url}" alt="Mini Bibuu" class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover border-2 border-white shadow-md shadow-sage-900/20">`;
+            } else {
+                el.innerHTML = `<span class="text-2xl md:text-3xl">${itemConfig.content}</span>`;
+            }
             
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            el.style.left = Math.random() * 95 + 'vw';
             
-            const duration = Math.random() * 3 + 3; // 3s - 6s
-            heart.style.animationDuration = duration + 's';
+            const duration = Math.random() * 4 + 6; // 6s - 10s for smoother float
+            el.style.animationDuration = duration + 's';
+            el.style.animationDelay = (Math.random() * 2) + 's';
             
-            container.appendChild(heart);
+            container.appendChild(el);
             
             setTimeout(() => {
-                heart.remove();
-            }, duration * 1000);
+                el.remove();
+            }, (duration + 2) * 1000);
         }
 
-        // Spawn hearts continuously
-        setInterval(createHeart, 400);
+        // Spawn initial batch & continue spawning
+        for (let i = 0; i < 8; i++) {
+            setTimeout(createFloatingElement, i * 800);
+        }
+        setInterval(createFloatingElement, 1200);
 
         // Move 'No' button randomly when hovered/clicked
         let clickCount = 0;
@@ -193,16 +219,14 @@
             const btnNo = document.getElementById('btn-no');
             clickCount++;
             
-            // Change text dynamically
             if (clickCount < noPhrases.length) {
                 btnNo.innerText = noPhrases[clickCount];
             } else {
                 btnNo.innerText = "Udah kepepet ya? 😆";
             }
 
-            // Calculate random safe offsets
-            const x = (Math.random() - 0.5) * 200;
-            const y = (Math.random() - 0.5) * 150;
+            const x = (Math.random() - 0.5) * 220;
+            const y = (Math.random() - 0.5) * 160;
             
             btnNo.style.transform = `translate(${x}px, ${y}px)`;
         }
@@ -213,9 +237,9 @@
             document.getElementById('action-buttons').classList.add('hidden');
             document.getElementById('success-response').classList.remove('hidden');
 
-            // Trigger burst of extra hearts
-            for (let i = 0; i < 30; i++) {
-                setTimeout(createHeart, i * 50);
+            // Trigger burst of extra floating photos and hearts
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createFloatingElement, i * 100);
             }
         }
     </script>
